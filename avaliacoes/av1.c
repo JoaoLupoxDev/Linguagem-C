@@ -57,8 +57,10 @@ int main(){
     // int somar = soma(res1, res2);
     // printf("o resultado da soma foi: %d", somar);
     int TAM=10;
-    char caracteres[TAM];
+    char caracteres[10] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'};
     char c;
     printf("Digite o caractere: ");
-    gets(c);
+    scanf(" %c", &c);
+    
+    
 }
