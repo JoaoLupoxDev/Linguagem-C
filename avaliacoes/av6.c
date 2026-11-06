@@ -40,5 +40,6 @@ int main(){
     char texto[255];
     printf("Digite um texto para saber quantos buracos tem nele: ");
     gets(texto);
-    int res = qtdBuracosEmTexto();
+    int res = qtdBuracosEmTexto(texto);
+    printf("A quantidade de buracos no texto é de %d buracos", res);
 }
