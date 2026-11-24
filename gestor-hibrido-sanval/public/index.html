@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gestor Híbrido Proativo</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f5f2;--sf:#fff;--tx:#1b1f1c;--mu:#667069;--bd:#dfe3dc;--ac:#0f7a4d;--acs:#e1f3ea;--wa:#d9fdd3;--wb:#efeae2;--wn:#b45309;--wns:#fdf0dc}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121513;--sf:#1c201d;--tx:#e8ece9;--mu:#98a39b;--bd:#2d332f;--ac:#3ecf8e;--acs:#1a3328;--wa:#144d37;--wb:#0b141a;--wn:#f5b25a;--wns:#3a2d14}}
+:root[data-theme="dark"]{--bg:#121513;--sf:#1c201d;--tx:#e8ece9;--mu:#98a39b;--bd:#2d332f;--ac:#3ecf8e;--acs:#1a3328;--wa:#144d37;--wb:#0b141a;--wn:#f5b25a;--wns:#3a2d14}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:20px 20px 8px;max-width:1100px;margin:auto}h1{margin:0;font-size:22px}header p{margin:4px 0 0;color:var(--mu)}
+nav{display:flex;gap:6px;padding:8px 20px;max-width:1100px;margin:auto;flex-wrap:wrap}
+nav button{border:1px solid var(--bd);background:var(--sf);color:var(--tx);padding:8px 14px;border-radius:20px;cursor:pointer;font:inherit}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{max-width:1100px;margin:auto;padding:8px 20px 40px}.hide{display:none}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:16px}@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px}
+h2{font-size:15px;margin:0 0 10px}h3{font-size:14px;margin:14px 0 6px}
+.phone{display:flex;flex-direction:column;height:560px;padding:0;overflow:hidden}
+.ph{background:var(--ac);color:#fff;padding:10px 14px;font-weight:600}
+.chat{flex:1;overflow:auto;background:var(--wb);padding:10px;display:flex;flex-direction:column;gap:6px}
+.m{max-width:85%;padding:7px 10px;border-radius:10px;background:var(--sf);white-space:pre-wrap;font-size:14px}
+.m.me{align-self:flex-end;background:var(--wa)}
+.qr{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.qr button{border:1px solid var(--ac);background:var(--sf);color:var(--ac);border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;font-size:13px}
+.inp{display:flex;gap:6px;padding:8px;border-top:1px solid var(--bd)}
+.inp input{flex:1;padding:9px;border-radius:20px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer;font:inherit}
+.btn.s{background:var(--acs);color:var(--ac)}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.kpi div{background:var(--bg);border-radius:10px;padding:10px}.kpi b{display:block;font-size:20px}.kpi span{color:var(--mu);font-size:12px}
+.wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--bd)}
+.low{color:var(--wn);font-weight:600}
+.ck{display:flex;gap:8px;align-items:center;padding:8px;border-radius:8px;margin-bottom:4px;background:var(--bg)}
+.ck.done span{text-decoration:line-through;color:var(--mu)}.ck input{width:18px;height:18px;accent-color:var(--ac)}
+.tag{font-size:11px;padding:2px 7px;border-radius:10px;background:var(--wns);color:var(--wn);margin-left:auto}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:820px){.tri{grid-template-columns:1fr}}
+.tri p,.tri li{color:var(--mu);font-size:14px}ul{padding-left:18px;margin:6px 0}
+pre{background:var(--bg);padding:12px;border-radius:10px;overflow-x:auto;font-size:12.5px}
+.step{display:flex;gap:10px;margin:8px 0}.step i{flex:none;width:24px;height:24px;border-radius:50%;background:var(--ac);color:#fff;text-align:center;font-style:normal;font-size:13px;line-height:24px}
+</style>
+</head><body>
+<header><h1>Gestor Híbrido Proativo</h1><p>WhatsApp (push) + WebApp (pull): integrado com banco_de_dados.pdf.</p></header>
+<nav id="nav"></nav>
+<main>
+<section id="t-mvp">
+<p style="color:var(--mu)">Converse no “WhatsApp” (ex.: <i>vendi 2 coca</i>, <i>boleto pago</i>, <i>estoque</i>) ou use o painel Web. Tudo atualiza o <b>banco_de_dados.pdf</b> no servidor.</p>
+<div class="grid">
+<div class="card phone"><div class="ph">🟢 Gestor da Loja</div><div class="chat" id="chat"></div>
+<form class="inp" id="f"><input id="i" placeholder="Digite ou use um atalho…" autocomplete="off"><button class="btn">Enviar</button></form></div>
+<div>
+<div class="card" style="margin-bottom:14px"><div class="kpi"><div><b id="k1">R$ 0,00</b><span>Caixa</span></div><div><b id="k2">0</b><span>Itens em estoque baixo</span></div><div><b id="k3">0</b><span>Pendências no checklist</span></div></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+  <button class="btn" id="cron">⏰ Simular 8h (Cron Job)</button>
+  <button class="btn s" id="reload">🔄 Recarregar do PDF</button>
+  <button class="btn s" id="reset">Reiniciar dados padrão</button>
+</div>
+<div style="margin-top:10px"><span id="dbst" style="color:var(--mu);font-size:12px">Conectando ao servidor...</span></div></div>
+<div class="card" style="margin-bottom:14px"><h2>Checklist acionável</h2><div id="cl"></div></div>
+<div class="card"><h2>Estoque</h2><div class="wrap"><table><thead><tr><th>Produto</th><th>Qtd</th><th>Mín.</th><th>Preço</th><th></th></tr></thead><tbody id="st"></tbody></table></div></div>
+</div></div>
+</section>
+
+<section id="t-proto" class="hide">
+<div class="card"><h2>Protótipo (o que o usuário vê e sente)</h2><p style="color:var(--mu)">Foco em IHC: validar o fluxo e a interface <b>antes</b> de programar o back-end.</p>
+<div class="tri"><div class="card"><h3>📱 WhatsApp (Push)</h3><ul><li>Resumo das 8h com boletos e cobranças</li><li>Alerta de estoque com botão SIM</li><li>Botão “Boleto pago”</li><li>Registro de venda por texto/áudio</li></ul></div>
+<div class="card"><h3>💻 WebApp (Pull)</h3><ul><li>Dashboard de caixa</li><li>Tabela de estoque</li><li>Coluna lateral de checklist</li><li>Atualização em tempo real</li></ul></div>
+<div class="card"><h3>🧪 Teste de usabilidade</h3><ul><li>Tarefa 1: registrar uma venda</li><li>Tarefa 2: confirmar compra após alerta</li><li>Tarefa 3: marcar boleto pago</li><li>Medir: tempo, erros e satisfação (SUS)</li></ul></div></div></div>
+</section>
+
+<section id="t-poc" class="hide">
+<div class="card"><h2>Proof of Concept (prova de viabilidade técnica)</h2>
+<div class="step"><i>1</i><div>Webhook recebe a mensagem “vendi 2 coca”.</div></div>
+<div class="step"><i>2</i><div>Back-end interpreta, baixa o estoque no banco e confere o limite mínimo.</div></div>
+<div class="step"><i>3</i><div>Banco em PDF (<code>banco_de_dados.pdf</code>) é atualizado pelo Node.js.</div></div>
+<div class="step"><i>4</i><div>Scheduler (cron, 8h) envia o resumo de vencimentos.</div></div>
+<div class="step"><i>5</i><div>Resposta “SIM” ou clique em “Boleto pago” fecha o item nos dois lados.</div></div></div>
+</section>
+
+<section id="t-esc" class="hide">
+<div class="tri"><div class="card"><h2>Protótipo</h2><p>Valida a experiência.</p><ul><li>Telas e fluxo</li><li>Testes com 3 a 5 lojistas</li></ul></div>
+<div class="card"><h2>PoC</h2><p>Valida a viabilidade técnica.</p><ul><li>Webhook + banco + cron</li><li>Critério: latência menor que 3 s</li></ul></div>
+<div class="card"><h2>MVP</h2><p>Valor mínimo entregue.</p><ul><li>Venda, estoque e caixa</li><li>Contas a pagar e receber</li><li>Alerta de estoque e resumo 8h</li><li>Checklist sincronizado</li></ul></div></div>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s),R=n=>"R$ "+Number(n||0).toFixed(2).replace(".",",");
+const defaultState=()=>({caixa:1200,stock:[{n:"Coca-Cola",k:"coca",q:5,m:2,p:6},{n:"Água 500ml",k:"agua",q:12,m:4,p:3},{n:"Pão francês (un.)",k:"pao",q:30,m:10,p:0.8},{n:"Biscoito",k:"bisc",q:8,m:3,p:4.5}],
+cl:[{id:1,t:"Boleto Fornecedor Ambev (R$ 200)",done:0,ty:"boleto"},{id:2,t:"Boleto Energia (R$ 150)",done:0,ty:"boleto"},{id:3,t:"Cobrar João (R$ 50)",done:0,ty:"receb"}],chat:[],hist:[]});
+
+let S=defaultState(),pend=null,nid=10;
+
+function lg(tipo,desc){S.hist.push({ts:new Date().toISOString().slice(0,19),tipo,desc})}
+function dbObj(){return{app:"Gestor Híbrido Proativo",versao:1,atualizado:new Date().toISOString().slice(0,19),caixa:S.caixa,nid,estoque:S.stock,checklist:S.cl.map(c=>({id:c.id,t:c.t,done:c.done?1:0,ty:c.ty,...(c.ref?{ref:c.ref}:{})})),historico:S.hist}}
+
+async function syncBackend(){
+  try{
+    const res=await fetch('/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dbObj())});
+    if(!res.ok)throw new Error("HTTP "+res.status);
+    $("#dbst").textContent="✅ Salvo em banco_de_dados.pdf às "+new Date().toLocaleTimeString("pt-BR");
+  }catch(e){
+    $("#dbst").textContent="⚠️ Erro ao salvar no PDF: "+e.message;
+  }
+}
+
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+function say(t,me,btns){S.chat.push({t,me,btns});draw()}
+function low(){return S.stock.filter(x=>x.q<=x.m)}
+
+function toggle(id,fromWeb){
+  const c=S.cl.find(x=>x.id==id);if(!c)return;
+  c.done=!c.done;lg(c.done?"concluído":"reaberto",c.t);
+  if(fromWeb&&c.done)say("✅ Painel Web: “"+c.t+"” concluído.");
+  draw();syncBackend();
+}
+
+function sell(prod,qty){
+  qty=qty||1;if(prod.q<qty){say("Só tenho "+prod.q+" de "+prod.n+" no estoque.");return}
+  prod.q-=qty;S.caixa+=prod.p*qty;lg("venda",qty+"x "+prod.n+" = "+R(prod.p*qty));
+  say("Venda registrada: "+qty+"x "+prod.n+" ("+R(prod.p*qty)+"). Caixa: "+R(S.caixa));
+  if(prod.q<=prod.m&&!S.cl.some(c=>c.ref==prod.k&&!c.done)){
+    S.cl.push({id:nid++,t:"Comprar "+prod.n,done:0,ty:"estoque",ref:prod.k});pend=prod;
+    say("⚠️ Seu estoque de "+prod.n+" chegou a "+prod.q+" unidades. Adicionar à lista? Responda SIM.",0,["SIM","Agora não"])
+  }
+  draw();syncBackend();
+}
+
+function morning(){
+  const b=S.cl.filter(c=>!c.done&&c.ty=="boleto"),r=S.cl.filter(c=>!c.done&&c.ty=="receb"),e=S.cl.filter(c=>!c.done&&c.ty=="estoque");
+  say("☀️ Bom dia! Hoje você tem "+b.length+" boleto(s) vencendo, "+r.length+" cobrança(s) a receber e "+e.length+" item(ns) de compra.\nPendências:\n"+(S.cl.filter(c=>!c.done).map(c=>"• "+c.t).join("\n")||"Nada pendente 🎉"),0,b.length?["Boleto pago"]:[])
+}
+
+function parse(raw){
+  const t=norm(raw);say(raw,1);
+  if(/^(sim|s)$/.test(t)){say(pend?"Pronto! “"+pend.n+"” está na lista de compras da semana. ✅":"Nada aguardando confirmação.");pend=null}
+  else if(/agora nao|nao/.test(t)){pend=null;say("Ok, mantive só no checklist.")}
+  else if(/pag|quitei/.test(t)&&/boleto|conta|pago/.test(t)){const b=S.cl.find(c=>!c.done&&c.ty=="boleto");if(b){b.done=1;lg("boleto pago",b.t);say("Boleto marcado como pago: “"+b.t+"” ✅")}else say("Nenhum boleto pendente.")}
+  else if(/recebi|pagou/.test(t)){const b=S.cl.find(c=>!c.done&&c.ty=="receb");if(b){b.done=1;S.caixa+=50;lg("recebimento",b.t);say("Recebimento registrado. Caixa: "+R(S.caixa))}else say("Nenhuma cobrança pendente.")}
+  else if(/vend|saiu/.test(t)){const p=S.stock.find(x=>t.includes(x.k));const n=(t.match(/\d+/)||[1])[0]*1;if(p){sell(p,n);return}else say("Não achei esse produto. Tente: coca, agua, pao ou biscoito.")}
+  else if(/estoque/.test(t))say("📦 Estoque:\n"+S.stock.map(x=>"• "+x.n+": "+x.q+(x.q<=x.m?" ⚠️":"")).join("\n"));
+  else if(/bom dia|resumo|checklist/.test(t))morning();
+  else say("Não entendi. Tente: “vendi 2 coca”, “boleto pago”, “estoque” ou “resumo”.");
+  draw();syncBackend();
+}
+
+function draw(){
+  $("#chat").innerHTML="";S.chat.forEach((m,i)=>{const d=document.createElement("div");d.className="m"+(m.me?" me":"");d.textContent=m.t;
+  if(m.btns&&i>=S.chat.length-3){const q=document.createElement("div");q.className="qr";m.btns.forEach(b=>{const x=document.createElement("button");x.textContent=b;x.onclick=()=>parse(b);q.append(x)});d.append(q)}
+  $("#chat").append(d)});$("#chat").scrollTop=1e9;
+  $("#k1").textContent=R(S.caixa);$("#k2").textContent=low().length;$("#k3").textContent=S.cl.filter(c=>!c.done).length;
+  $("#cl").innerHTML="";S.cl.forEach(c=>{const d=document.createElement("label");d.className="ck"+(c.done?" done":"");
+  d.innerHTML='<input type="checkbox" '+(c.done?"checked":"")+'><span></span><em class="tag"></em>';d.querySelector("span").textContent=c.t;
+  d.querySelector("em").textContent={boleto:"pagar",receb:"receber",estoque:"comprar"}[c.ty]||c.ty;d.querySelector("input").onchange=()=>toggle(c.id,1);$("#cl").append(d)});
+  $("#st").innerHTML="";S.stock.forEach(x=>{const r=document.createElement("tr");r.innerHTML="<td></td><td class='"+(x.q<=x.m?"low":"")+"'>"+x.q+"</td><td>"+x.m+"</td><td>"+R(x.p)+"</td><td><button class='btn s'>Vender 1</button></td>";
+  r.firstChild.textContent=x.n;r.querySelector("button").onclick=()=>{say("Venda via painel Web: 1x "+x.n,1);sell(x,1)};$("#st").append(r)})
+}
+
+$("#f").onsubmit=e=>{e.preventDefault();const v=$("#i").value.trim();if(v){$("#i").value="";parse(v)}};
+$("#cron").onclick=morning;
+$("#reload").onclick=()=>boot(true);
+$("#reset").onclick=()=>{S=defaultState();pend=null;nid=10;say("🔄 Dados reiniciados para o padrão.");draw();syncBackend()};
+
+async function boot(manual){
+  draw();
+  try{
+    const res=await fetch('/api/state');
+    const data=await res.json();
+    if(data&&data.app){
+      S.caixa=Number(data.caixa)||0;
+      S.stock=data.estoque||[];
+      S.cl=data.checklist||[];
+      S.hist=data.historico||[];
+      nid=data.nid||10;
+    }
+    $("#dbst").textContent="✅ Sincronizado com banco_de_dados.pdf";
+    if(!manual)say("Olá! Conectado ao banco_de_dados.pdf. Registre vendas por aqui (ex.: “vendi 2 coca”) e o PDF será atualizado na hora. 👋");
+    else say("📥 Dados recarregados do banco_de_dados.pdf.");
+  }catch(e){
+    $("#dbst").textContent="⚠️ Backend offline";
+    say("⚠️ Não consegui conectar ao servidor. Verifique se node server.js está rodando.");
+  }
+  draw();
+}
+boot(false);
+
+const T=[["mvp","MVP (demo)"],["proto","Protótipo"],["poc","PoC"],["esc","Escopo"]];
+T.forEach(([k,l],i)=>{const b=document.createElement("button");b.textContent=l;if(!i)b.className="on";b.onclick=()=>{T.forEach(([z])=>$("#t-"+z).classList.toggle("hide",z!=k));[...$("#nav").children].forEach(c=>c.classList.toggle("on",c==b))};$("#nav").append(b)});
+</script></body></html>
